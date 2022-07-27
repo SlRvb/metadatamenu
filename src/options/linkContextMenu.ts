@@ -17,14 +17,8 @@ export default class linkContextMenu {
 	private createContextMenu(): void {
 		this.plugin.registerEvent(
 			this.plugin.app.workspace.on('file-menu', (menu, abstractFile, source) => {
-				if ((
-					source === "link-context-menu" ||
-					source === "calendar-context-menu" ||
-					source === 'pane-more-options' ||
-					source === 'file-explorer-context-menu')) {
-
-					const file = this.plugin.app.vault.getAbstractFileByPath(abstractFile.path);
-
+				if (this.plugin.settings.displayFieldsInContextMenu) {
+					const file = this.plugin.app.vault.getAbstractFileByPath(abstractFile.path)
 					if (file instanceof TFile && file.extension === 'md') {
 						this.file = file;
 						
