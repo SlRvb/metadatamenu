@@ -17,48 +17,44 @@ export default class linkContextMenu {
 	private createContextMenu(): void {
 		this.plugin.registerEvent(
 			this.plugin.app.workspace.on('file-menu', (menu, abstractFile, source) => {
-				if (this.plugin.settings.displayFieldsInContextMenu) {
-					const file = this.plugin.app.vault.getAbstractFileByPath(abstractFile.path)
-					if (file instanceof TFile && file.extension === 'md') {
-						this.file = file;
-						
-						//If fileClass
-						if (file.parent.path + "/" == this.plugin.settings.classFilesPath) {
-							menu.addSeparator();
-							menu.addItem((item) => {
-								item.setIcon("gear");
-								item.setTitle(`Manage <${file.basename}> fields`);
-								item.onClick((evt) => {
-									const fileClassAttributeSelectModal = new FileClassAttributeSelectModal(this.plugin, file);
-									fileClassAttributeSelectModal.open();
-								});
+
+				const file = this.plugin.app.vault.getAbstractFileByPath(abstractFile.path);
+
+				if (file instanceof TFile && file.extension === 'md') {
+					this.file = file;
+
+					//If fileClass
+					if (file.parent.path + "/" == this.plugin.settings.classFilesPath) {
+						menu.addSeparator();
+						menu.addItem((item) => {
+							item.setIcon("gear");
+							item.setTitle(`Manage <${file.basename}> fields`);
+							item.onClick((evt) => {
+								const fileClassAttributeSelectModal = new FileClassAttributeSelectModal(this.plugin, file);
+								fileClassAttributeSelectModal.open();
 							});
+						});
+					} else {
+						//If displayFieldsInContextMenu true, show all fields in note
+						if (this.plugin.settings.displayFieldsInContextMenu) {
+							this.optionsList = new OptionsList(this.plugin, this.file, menu);
+							this.optionsList.createExtraOptionList();
 						} else {
-							//If displayFieldsInContextMenu true, show all fields in note
-							if(this.plugin.settings.displayFieldsInContextMenu) {
-								this.optionsList = new OptionsList(this.plugin, this.file, menu);
-								this.optionsList.createExtraOptionList();
-							} else {
 
-								//New Field
-								if (file instanceof TFile && file.extension === 'md') {
-									this.file = file;
-									this.optionsList = new OptionsList(this.plugin, this.file, menu);
-									this.optionsList.addSectionSelectModalOption();
-								}
+							//New Field
+							this.optionsList = new OptionsList(this.plugin, this.file, menu);
 
-								//Field Options
-								menu.addItem((item) => {
-									item.setIcon("bullet-list"),
+							//Field Options
+							menu.addItem((item) => {
+								item.setIcon("bullet-list"),
 									item.setTitle(`Field Options`),
 									item.onClick((evt) => {
 										const fieldOptions = new NoteFieldsCommandsModal(app, this.plugin, file);
 										fieldOptions.open();
 									})
-									item.setSection("target-metadata");
-								})
-							}
-						};
+								item.setSection("target-metadata");
+							})
+						}
 					};
 				};
 			})
